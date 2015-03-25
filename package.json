@@ -15,5 +15,21 @@
         "test": "nodeunit test",
         "coveralls": "jscoverage lib && LEE_COVERAGE=1 nodeunit --reporter=lcov test | coveralls"
     },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Dragiyski/node-lee"
+    },
+    "bugs": {
+        "url": "https://github.com/Dragiyski/node-lee/issues"
+    },
+    "keywords": [
+        "event",
+        "events",
+        "emitter",
+        "async",
+        "dependency",
+        "graph"
+    ],
+    "license": "LGPL",
     "main": "main.js"
 }
