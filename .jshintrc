@@ -1,0 +1,27 @@
+{
+    "trailing": true,
+    "freeze": true,
+    "strict": true,
+    "latedef": "nofunc",
+    "node": true,
+    "noempty": true,
+    "noarg": true,
+    "unused": "vars",
+    "maxlen": 120,
+    "boss": true,
+    "eqeqeq": true,
+    "indent": 4,
+    "newcap": true,
+    "immed": true,
+    "curly": true,
+    "undef": true,
+    "nonew": true,
+    "loopfunc": true,
+    "-W014": false,
+    "-W058": false,
+    "-W064": false,
+    "predef": [
+        "setImmediate",
+        "global"
+    ]
+}

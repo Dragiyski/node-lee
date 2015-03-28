@@ -1,35 +1,37 @@
 {
-    "name": "lee",
-    "description": "Asynchronous event emitter with listener ordering",
-    "version": "0.0.1",
-    "dependencies": {
-        "bluebird": "^2.9.14",
-        "hash-me": "^0.3.2"
-    },
-    "devDependencies": {
-        "coveralls": "^2.11.2",
-        "jscoverage": "^0.5.9",
-        "nodeunit": "^0.9.1"
-    },
-    "scripts": {
-        "test": "nodeunit test",
-        "coveralls": "jscoverage lib && LEE_COVERAGE=1 nodeunit --reporter=lcov test | coveralls"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/Dragiyski/node-lee"
-    },
-    "bugs": {
-        "url": "https://github.com/Dragiyski/node-lee/issues"
-    },
-    "keywords": [
-        "event",
-        "events",
-        "emitter",
-        "async",
-        "dependency",
-        "graph"
-    ],
-    "license": "LGPL",
-    "main": "main.js"
+  "name": "lee",
+  "description": "Asynchronous event emitter with listener ordering",
+  "version": "0.0.1",
+  "dependencies": {
+    "bluebird": "^2.9.14",
+    "hash-me": "^0.3.2"
+  },
+  "devDependencies": {
+    "coveralls": "^2.11.2",
+    "istanbul": "^0.3.11",
+    "jscoverage": "^0.5.9",
+    "nodeunit": "^0.9.1"
+  },
+  "scripts": {
+    "test": "nodeunit test",
+    "coverage": "istanbul cover nodeunit -- test",
+    "coveralls": "jscoverage lib && LEE_COVERAGE=1 nodeunit --reporter=lcov test | coveralls"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dragiyski/node-lee"
+  },
+  "bugs": {
+    "url": "https://github.com/Dragiyski/node-lee/issues"
+  },
+  "keywords": [
+    "event",
+    "events",
+    "emitter",
+    "async",
+    "dependency",
+    "graph"
+  ],
+  "license": "LGPL-3.0",
+  "main": "main.js"
 }

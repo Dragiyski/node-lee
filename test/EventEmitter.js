@@ -76,14 +76,14 @@
         "test without dependencies (parallel)": function (test) {
             test.expect(6);
             var emitter = new EventEmitter, a = 1, b = 1, makeTwoA = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         a = 2;
                         resolve();
                     });
                 });
             }, makeTwoB = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         b = 2;
                         resolve();
@@ -105,7 +105,7 @@
         "test without dependencies (series)": function (test) {
             test.expect(10);
             var emitter = new EventEmitter, a = 1, b = 1, makeTwoA = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         test.strictEqual(a, 1);
                         test.strictEqual(b, 1);
@@ -114,7 +114,7 @@
                     });
                 });
             }, makeTwoB = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         test.strictEqual(a, 2);
                         test.strictEqual(b, 1);
@@ -138,7 +138,7 @@
         "test once removal (parallel)": function (test) {
             test.expect(1);
             var emitter = new EventEmitter, listener = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         resolve();
                     });
@@ -154,7 +154,7 @@
         "test once removal (series)": function (test) {
             test.expect(1);
             var emitter = new EventEmitter, listener = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         resolve();
                     });
@@ -224,7 +224,7 @@
             var emitter = new EventEmitter;
             var a = 1, b = 1, c = 1, d = 1;
             var makeTwoA = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         test.strictEqual(a, 1);
                         test.strictEqual(b, 1);
@@ -235,7 +235,7 @@
                     });
                 });
             }, makeTwoB = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         test.strictEqual(a, 2);
                         test.strictEqual(b, 1);
@@ -246,7 +246,7 @@
                     });
                 });
             }, makeTwoC = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         test.strictEqual(a, 2);
                         test.strictEqual(b, 1);
@@ -256,7 +256,7 @@
                     });
                 });
             }, makeTwoD = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         test.strictEqual(a, 2);
                         test.strictEqual(b, 1);
@@ -288,7 +288,7 @@
             var emitter = new EventEmitter;
             var a = 1, b = 1, c = 1, d = 1;
             var makeTwoA = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         test.strictEqual(a, 1);
                         test.strictEqual(b, 1);
@@ -299,7 +299,7 @@
                     });
                 });
             }, makeTwoB = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         test.strictEqual(a, 2);
                         test.strictEqual(b, 1);
@@ -310,7 +310,7 @@
                     });
                 });
             }, makeTwoC = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         test.strictEqual(a, 2);
                         test.strictEqual(b, 1);
@@ -321,7 +321,7 @@
                     });
                 });
             }, makeTwoD = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve) {
                     setImmediate(function () {
                         test.strictEqual(a, 2);
                         test.strictEqual(b, 1);
@@ -367,13 +367,49 @@
             });
         },
         "test passing invalid dependency": function (test) {
-            var emitter = new EventEmitter, f = function () {}, o = {};
-            test.doesNotThrow(function () {
+            var emitter = new EventEmitter, f = function () {}, g = function () {}, o = {};
+            var arrayLikeInvalidLength = function () {
+                var o = {};
+                Array.prototype.forEach.call(arguments, function (element, index) {
+                    o[index] = element;
+                });
+                o.length = "asd";
+                return o;
+            }, arrayLikeInfiniteLength = function () {
+                var o = {};
+                Array.prototype.forEach.call(arguments, function (element, index) {
+                    o[index] = element;
+                });
+                o.length = Infinity;
+                return o;
+            }, arrayLikeNegativeLength = function () {
+                var o = {};
+                Array.prototype.forEach.call(arguments, function (element, index) {
+                    o[index] = element;
+                });
+                o.length = -256;
+                return o;
+            }, arrayLikeOverflowLength = function () {
+                var o = {};
+                Array.prototype.forEach.call(arguments, function (element, index) {
+                    o[index] = element;
+                });
+                o.length = 4294967299;
+                return o;
+            }, arrayLikeFloatLength = function () {
+                var o = {};
+                Array.prototype.forEach.call(arguments, function (element, index) {
+                    o[index] = element;
+                });
+                o.length = 5.4;
+                return o;
+            };
+            test.throws(function () {
                 emitter.on("test", f, o);
-            });
-            test.doesNotThrow(function () {
+            }, TypeError);
+            test.throws(function () {
                 emitter.once("test", f, o);
-            });
+            }, TypeError);
             test.throws(function () {
                 emitter.on("test", f, [o]);
             }, TypeError);
@@ -386,6 +422,31 @@
             test.throws(function () {
                 emitter.once("test", f, [f]);
             }, ReferenceError);
+            test.throws(function () {
+                emitter.once("test", f, arrayLikeInvalidLength(g));
+            }, TypeError);
+            test.throws(function () {
+                emitter.once("test", f, arrayLikeInfiniteLength(g));
+            }, TypeError);
+            test.throws(function () {
+                emitter.once("test", f, arrayLikeNegativeLength(g));
+            }, TypeError);
+            test.throws(function () {
+                emitter.once("test", f, arrayLikeOverflowLength(g));
+            }, TypeError);
+            test.throws(function () {
+                emitter.once("test", f, arrayLikeFloatLength(g));
+            }, TypeError);
+            test.throws(function () {
+                emitter.once("test", f, null);
+            }, TypeError);
+            test.throws(function () {
+                emitter.once("test", f, undefined);
+            }, TypeError);
+
+            test.throws(function () {
+                emitter.once("test", f, 2);
+            }, TypeError);
             test.done();
         },
         "test passing dependencies again": function (test) {
@@ -434,7 +495,7 @@
                     object[name] = {
                         value: 1,
                         listener: function () {
-                            return new Promise(function (resolve, reject) {
+                            return new Promise(function (resolve) {
                                 setImmediate(function () {
                                     if (typeof check === 'function') {
                                         check();
@@ -495,7 +556,7 @@
                     object[name] = {
                         value: 1,
                         listener: function () {
-                            return new Promise(function (resolve, reject) {
+                            return new Promise(function (resolve) {
                                 setImmediate(function () {
                                     if (typeof check === 'function') {
                                         check();
@@ -530,266 +591,8 @@
                 test.strictEqual(object.d.value, 1);
             });
             emitter.on("test", object.a.listener);
-            emitter.on("test", object.b.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.c.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.d.listener, makeArgs(object.b.listener, object.c.listener));
-            emitter.emit("test").then(function () {
-                test.strictEqual(object.a.value, 2);
-                test.strictEqual(object.b.value, 2);
-                test.strictEqual(object.c.value, 2);
-                test.strictEqual(object.d.value, 2);
-            }).finally(function () {
-                test.done();
-            });
-        },
-        "test invalid dependencies form: invalid length": function (test) {
-            test.expect(4);
-            var emitter = new EventEmitter, makeArgs = function () {
-                    var o = {};
-                    Array.prototype.forEach.call(arguments, function (element, index) {
-                        o[index] = element;
-                    });
-                    o.length = "asd";
-                    return o;
-                }, object = {},
-                createAttribute = function (name, check) {
-                    object[name] = {
-                        value: 1,
-                        listener: function () {
-                            return new Promise(function (resolve, reject) {
-                                setImmediate(function () {
-                                    if (typeof check === 'function') {
-                                        check();
-                                    }
-                                    ++object[name].value;
-                                    resolve();
-                                });
-                            });
-                        }
-                    };
-                };
-            createAttribute("a");
-            createAttribute("b");
-            createAttribute("c");
-            createAttribute("d");
-            emitter.on("test", object.a.listener);
-            emitter.on("test", object.b.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.c.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.d.listener, makeArgs(object.b.listener, object.c.listener));
-            emitter.emit("test").then(function () {
-                test.strictEqual(object.a.value, 2);
-                test.strictEqual(object.b.value, 2);
-                test.strictEqual(object.c.value, 2);
-                test.strictEqual(object.d.value, 2);
-            }).finally(function () {
-                test.done();
-            });
-        },
-        "test invalid dependencies form: infinite length": function (test) {
-            test.expect(4);
-            var emitter = new EventEmitter, makeArgs = function () {
-                    var o = {};
-                    Array.prototype.forEach.call(arguments, function (element, index) {
-                        o[index] = element;
-                    });
-                    o.length = Infinity;
-                    return o;
-                }, object = {},
-                createAttribute = function (name, check) {
-                    object[name] = {
-                        value: 1,
-                        listener: function () {
-                            return new Promise(function (resolve, reject) {
-                                setImmediate(function () {
-                                    if (typeof check === 'function') {
-                                        check();
-                                    }
-                                    ++object[name].value;
-                                    resolve();
-                                });
-                            });
-                        }
-                    };
-                };
-            createAttribute("a");
-            createAttribute("b");
-            createAttribute("c");
-            createAttribute("d");
-            emitter.on("test", object.a.listener);
-            emitter.on("test", object.b.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.c.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.d.listener, makeArgs(object.b.listener, object.c.listener));
-            emitter.emit("test").then(function () {
-                test.strictEqual(object.a.value, 2);
-                test.strictEqual(object.b.value, 2);
-                test.strictEqual(object.c.value, 2);
-                test.strictEqual(object.d.value, 2);
-            }).finally(function () {
-                test.done();
-            });
-        },
-        "test invalid dependencies form: NaN length": function (test) {
-            test.expect(4);
-            var emitter = new EventEmitter, makeArgs = function () {
-                    var o = {};
-                    Array.prototype.forEach.call(arguments, function (element, index) {
-                        o[index] = element;
-                    });
-                    o.length = Number.NaN;
-                    return o;
-                }, object = {},
-                createAttribute = function (name, check) {
-                    object[name] = {
-                        value: 1,
-                        listener: function () {
-                            return new Promise(function (resolve, reject) {
-                                setImmediate(function () {
-                                    if (typeof check === 'function') {
-                                        check();
-                                    }
-                                    ++object[name].value;
-                                    resolve();
-                                });
-                            });
-                        }
-                    };
-                };
-            createAttribute("a");
-            createAttribute("b");
-            createAttribute("c");
-            createAttribute("d");
-            emitter.on("test", object.a.listener);
-            emitter.on("test", object.b.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.c.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.d.listener, makeArgs(object.b.listener, object.c.listener));
-            emitter.emit("test").then(function () {
-                test.strictEqual(object.a.value, 2);
-                test.strictEqual(object.b.value, 2);
-                test.strictEqual(object.c.value, 2);
-                test.strictEqual(object.d.value, 2);
-            }).finally(function () {
-                test.done();
-            });
-        },
-        "test invalid dependencies form: negative length": function (test) {
-            test.expect(4);
-            var emitter = new EventEmitter, makeArgs = function () {
-                    var o = {};
-                    Array.prototype.forEach.call(arguments, function (element, index) {
-                        o[index] = element;
-                    });
-                    o.length = -256;
-                    return o;
-                }, object = {},
-                createAttribute = function (name, check) {
-                    object[name] = {
-                        value: 1,
-                        listener: function () {
-                            return new Promise(function (resolve, reject) {
-                                setImmediate(function () {
-                                    if (typeof check === 'function') {
-                                        check();
-                                    }
-                                    ++object[name].value;
-                                    resolve();
-                                });
-                            });
-                        }
-                    };
-                };
-            createAttribute("a");
-            createAttribute("b");
-            createAttribute("c");
-            createAttribute("d");
-            emitter.on("test", object.a.listener);
-            emitter.on("test", object.b.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.c.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.d.listener, makeArgs(object.b.listener, object.c.listener));
-            emitter.emit("test").then(function () {
-                test.strictEqual(object.a.value, 2);
-                test.strictEqual(object.b.value, 2);
-                test.strictEqual(object.c.value, 2);
-                test.strictEqual(object.d.value, 2);
-            }).finally(function () {
-                test.done();
-            });
-        },
-        "test invalid dependencies form: huge length": function (test) {
-            test.expect(4);
-            var emitter = new EventEmitter, makeArgs = function () {
-                    var o = {};
-                    Array.prototype.forEach.call(arguments, function (element, index) {
-                        o[index] = element;
-                    });
-                    o.length = 4294967299;
-                    return o;
-                }, object = {},
-                createAttribute = function (name, check) {
-                    object[name] = {
-                        value: 1,
-                        listener: function () {
-                            return new Promise(function (resolve, reject) {
-                                setImmediate(function () {
-                                    if (typeof check === 'function') {
-                                        check();
-                                    }
-                                    ++object[name].value;
-                                    resolve();
-                                });
-                            });
-                        }
-                    };
-                };
-            createAttribute("a");
-            createAttribute("b");
-            createAttribute("c");
-            createAttribute("d");
-            emitter.on("test", object.a.listener);
-            emitter.on("test", object.b.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.c.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.d.listener, makeArgs(object.b.listener, object.c.listener));
-            emitter.emit("test").then(function () {
-                test.strictEqual(object.a.value, 2);
-                test.strictEqual(object.b.value, 2);
-                test.strictEqual(object.c.value, 2);
-                test.strictEqual(object.d.value, 2);
-            }).finally(function () {
-                test.done();
-            });
-        },
-        "test invalid dependencies form: float length": function (test) {
-            test.expect(4);
-            var emitter = new EventEmitter, makeArgs = function () {
-                    var o = {};
-                    Array.prototype.forEach.call(arguments, function (element, index) {
-                        o[index] = element;
-                    });
-                    o.length = 5.4;
-                    return o;
-                }, object = {},
-                createAttribute = function (name, check) {
-                    object[name] = {
-                        value: 1,
-                        listener: function () {
-                            return new Promise(function (resolve, reject) {
-                                setImmediate(function () {
-                                    if (typeof check === 'function') {
-                                        check();
-                                    }
-                                    ++object[name].value;
-                                    resolve();
-                                });
-                            });
-                        }
-                    };
-                };
-            createAttribute("a");
-            createAttribute("b");
-            createAttribute("c");
-            createAttribute("d");
-            emitter.on("test", object.a.listener);
-            emitter.on("test", object.b.listener, makeArgs(object.a.listener));
-            emitter.on("test", object.c.listener, makeArgs(object.a.listener));
+            emitter.on("test", object.b.listener, object.a.listener);
+            emitter.once("test", object.c.listener, object.a.listener);
             emitter.on("test", object.d.listener, makeArgs(object.b.listener, object.c.listener));
             emitter.emit("test").then(function () {
                 test.strictEqual(object.a.value, 2);
@@ -807,7 +610,7 @@
                     object[name] = {
                         value: 1,
                         listener: function () {
-                            return new Promise(function (resolve, reject) {
+                            return new Promise(function (resolve) {
                                 setImmediate(function () {
                                     if (typeof check === 'function') {
                                         check();
@@ -842,7 +645,7 @@
                     object[name] = {
                         value: 1,
                         listener: function () {
-                            return new Promise(function (resolve, reject) {
+                            return new Promise(function (resolve) {
                                 setImmediate(function () {
                                     if (typeof check === 'function') {
                                         check();
@@ -881,7 +684,7 @@
                     object[name] = {
                         value: 1,
                         listener: function () {
-                            return new Promise(function (resolve, reject) {
+                            return new Promise(function (resolve) {
                                 setImmediate(function () {
                                     if (typeof check === 'function') {
                                         check();
@@ -913,7 +716,7 @@
                     object[name] = {
                         value: 1,
                         listener: function () {
-                            return new Promise(function (resolve, reject) {
+                            return new Promise(function (resolve) {
                                 setImmediate(function () {
                                     if (typeof check === 'function') {
                                         check();
@@ -945,7 +748,7 @@
                     object[name] = {
                         value: 1,
                         listener: function () {
-                            return new Promise(function (resolve, reject) {
+                            return new Promise(function (resolve) {
                                 setImmediate(function () {
                                     if (typeof check === 'function') {
                                         check();
