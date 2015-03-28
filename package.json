@@ -1,7 +1,7 @@
 {
   "name": "lee",
   "description": "Asynchronous event emitter with listener ordering",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "dependencies": {
     "bluebird": "^2.9.14",
     "hash-me": "^0.3.2"
