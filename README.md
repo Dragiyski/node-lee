@@ -1,4 +1,8 @@
 # node-lee
+
+[![Build Status](https://travis-ci.org/Dragiyski/node-lee.svg?branch=master)](https://travis-ci.org/Dragiyski/node-lee)
+[![Coverage Status](https://coveralls.io/repos/Dragiyski/node-lee/badge.svg)](https://coveralls.io/r/Dragiyski/node-lee)
+
 Asynchronous event emitter with listener ordering.
 
 ## Install
